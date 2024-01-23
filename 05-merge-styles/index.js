@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-async function readFiles() {
+async function mergeStyles() {
   const dirPath = path.resolve(__dirname, 'styles');
   const files = await fs.readdir(dirPath);
 
@@ -23,4 +23,6 @@ async function readFiles() {
   }
 }
 
-readFiles();
+mergeStyles();
+
+module.exports = { mergeStyles };

@@ -1,42 +1,37 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 
-const copyDir = (sourceDir, destDir) => {
-  fs.mkdir(path.resolve(__dirname, destDir), { recursive: true }, (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
+async function copyDir(pathFolder, pathCopyFolder) {
+  try {
+    const pathCopyFolderStats = await fs.stat(pathCopyFolder).catch(() => null);
 
-  fs.readdir(path.resolve(__dirname, destDir), (err, files) => {
-    if (err) {
-      console.log(err);
-    } else {
-      files.forEach((file) => {
-        fs.unlink(path.resolve(__dirname, destDir, file), (err) =>
-          console.log(err),
-        );
-      });
+    if (pathCopyFolderStats) {
+      await fs.rm(pathCopyFolder, { recursive: true });
     }
-  });
 
-  fs.readdir(path.resolve(__dirname, sourceDir), (err, files) => {
-    if (err) {
-      console.log(err);
-    } else {
-      files.forEach((file) => {
-        fs.copyFile(
-          path.resolve(__dirname, sourceDir, file),
-          path.resolve(__dirname, destDir, file),
-          (err) => {
-            if (err) {
-              console.log(err);
-            }
-          },
-        );
-      });
+    await fs.mkdir(pathCopyFolder);
+    const files = await fs.readdir(pathFolder);
+
+    for (const file of files) {
+      const pathFile = path.resolve(pathFolder, file);
+      const pathCopyFile = path.resolve(pathCopyFolder, file);
+
+      const stats = await fs.stat(pathFile);
+
+      if (stats.isFile()) {
+        await fs.copyFile(pathFile, pathCopyFile);
+      } else if (stats.isDirectory()) {
+        await copyDir(pathFile, pathCopyFile);
+      }
     }
-  });
-};
+  } catch (err) {
+    console.log(err);
+  }
+}
 
-copyDir('files', 'files-copy');
+copyDir(
+  path.resolve(__dirname, 'files'),
+  path.resolve(__dirname, 'files-copy'),
+);
+
+module.exports = { copyDir };
