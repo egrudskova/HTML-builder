@@ -12,4 +12,7 @@ stdin.on('data', (data) => {
 });
 
 output.on('error', (err) => console.log('Error', err.message));
+process.on('SIGINT', () => {
+  process.exit();
+});
 process.on('exit', () => stdout.write('Goodbye'));
