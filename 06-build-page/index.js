@@ -28,7 +28,7 @@ const buildPage = async () => {
       );
       const componentName = path.parse(component).name;
       distHtml = distHtml.replace(
-        new RegExp(`{{${componentName}}`, 'g'),
+        new RegExp(`{{${componentName}}}`, 'g'),
         componentInnerHtml,
       );
     }
